@@ -18,9 +18,9 @@ export default class playGame extends Phaser.Scene {
 
     }
 
-    update() {
-
-        this.bird.update(this.cursors);
+    update(time, delta) {
+        //console.log(time + " " + delta);
+        this.bird.update(this.cursors, time);
 
     }
 
