@@ -16,6 +16,10 @@ export default class playGame extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys()
 
+        this.enemy = this.physics.add.sprite(400, 400, "enemy");
+
+        this.enemy.setScale(0.5);
+
     }
 
     update(time, delta) {

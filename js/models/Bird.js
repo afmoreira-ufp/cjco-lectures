@@ -9,13 +9,20 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         //enable physics to sprite
         this.scene.physics.world.enable(this);
 
+        this.velocity = 250;
+
         this.timeToShoot = 0;
+        this.fireRate = 250;
 
         //this.bullets=[];
 
+        this.bulletsMaxsize = 5;
+
         this.bullets = this.scene.physics.add.group({
-            maxSize: 5
+            maxSize: this.bulletsMaxsize,
         });
+
+
 
 
     }
@@ -26,35 +33,41 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y, "bullet");
 
             if (bullet) {
-                bullet.setVelocityX(250);
+                bullet.setVelocityX(350);
+
+                bullet.active = true;
+                bullet.visible = true;
             }
             //this.bullets.push(bullet);
 
-            this.timeToShoot = time + 100;
+            this.timeToShoot = time + this.fireRate;
 
-            console.log(this.bullets.children.size);
+            if (this.bullets.children.size > this.bulletsMaxsize) {
+                console.log("Group size failed")
+            }
+
         }
 
 
         this.setVelocity(0);
-        const velocity = 150;
+        //const velocity = 150;
         if (cursors.down.isDown) {
-            this.setVelocityY(velocity);
+            this.setVelocityY(this.velocity);
         } else if (cursors.up.isDown) {
-            this.setVelocityY(-velocity);
+            this.setVelocityY(-this.velocity);
         }
         if (cursors.right.isDown) {
-            this.setVelocityX(velocity);
+            this.setVelocityX(this.velocity);
         } else if (cursors.left.isDown) {
-            this.setVelocityX(-velocity);
+            this.setVelocityX(-this.velocity);
         }
 
         this.bullets.children.iterate(function (bullet) {
-            if (bullet.x > 300) {
+            if (bullet.x > this.scene.game.config.width) {
                 //bullet.active = false;
-                this.bullets.kill(bullet);
+                this.bullets.killAndHide(bullet);
             }
-        }, this)
+        }, this);
 
     }
 
