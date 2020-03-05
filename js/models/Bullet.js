@@ -1,4 +1,4 @@
-export default class Bullet extends Phaser.Physics.Arcade.Sprite {
+export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene, x, y) {
 
         super(scene, x, y, "bullet");
