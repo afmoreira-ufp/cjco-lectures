@@ -27,6 +27,11 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
     }
 
+    removeFromScreen() {
+        this.x = -100;
+        this.setVelocity(0, 0);
+    }
+
     isOutsideCanvas() {
         const width = this.scene.game.config.width;
         const height = this.scene.game.config.height;

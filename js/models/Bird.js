@@ -1,4 +1,5 @@
 import Bullet from "./Bullet.js";
+import Explosion from "./Explosion.js";
 
 export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
@@ -10,10 +11,15 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         //enable physics to sprite
         this.scene.physics.world.enable(this);
 
+        this.lives = 3;
+
+        //used to create an invencibility time window after a death
+        this.canBeKilled = true;
+
         this.velocity = 250;
 
         this.timeToShoot = 0;
-        this.fireRate = 250;
+        this.fireRate = 350;
 
         //this.bullets=[];
 
@@ -32,7 +38,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
             frames: this.scene.anims.generateFrameNumbers('bird', { start: 0, end: 2 }),
-            frameRate: 10,
+            frameRate: 1,
             repeat: -1 //animation repetition (-1 = infinity)
         });
 
@@ -47,8 +53,10 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y);
 
             if (bullet) {
-                //bullet.setVelocityX(350);
-                bullet.fire(this.scene.enemy);
+                bullet.setVelocityX(350);
+                bullet.active = true;
+                bullet.visible = true;
+                //bullet.fire(this.scene.enemy);
 
             }
             //this.bullets.push(bullet);
@@ -57,6 +65,9 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
                 console.log("Group size failed")
+            }
+            if (this.fireSound) {
+                this.fireSound.play();
             }
 
         }
@@ -86,6 +97,63 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+
+    /**
+     * create an explosion, decrease one life, prevent a new collision and put the bird off-screen
+     */
+    dead() {
+        let x = this.x;
+        let y = this.y;
+        new Explosion(this.scene, x, y);
+        this.lives -= 1;
+
+        //prevents new collision
+        this.canBeKilled = false;
+        this.x = -100;
+        this.y = -100;
+
+    }
+
+    /**
+     * replace the bird on-screen, change the bird color (tint) and re-enable collisions
+     */
+    revive() {
+
+        this.x = 100;
+        this.y = 100;
+
+        let i = 0;
+        let repetition = 200
+        let changeTint = true;
+
+        /**
+         * timer to change the bird's color/tint 
+         */
+        this.scene.time.addEvent({
+            repeat: repetition,
+            loop: false,
+            callback: () => {
+
+                //in the last repetition replace the normal color (tint) and re-enables collision
+                if (i >= repetition) {
+                    this.tint = 0xFFFFFF
+                    this.canBeKilled = true;
+                } else {
+
+                    if (changeTint) {
+                        this.tint = 0xFF0000
+                    } else {
+                        this.tint = 0xFFFFFF
+                    }
+                    if (i % 20 == 0) {
+                        changeTint = !changeTint;
+                    }
+
+                }
+                i++
+            }
+        });
+    }
 
 
 }
